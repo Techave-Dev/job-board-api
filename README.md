@@ -310,7 +310,7 @@ data: {"type":"new_job","title":"New job posted","message":"Senior Developer at 
 
 **Rules:**
 - Only applicant who applied AND company owner can join room
-- Messages stored in `chat_messages` table
+- Messages persisted to database
 - Simple broadcast to room (no typing indicators, no read receipts)
 
 ---
@@ -680,3 +680,49 @@ sequenceDiagram
 13. Testing              — unit + integration + e2e tests
 14. Postman Collection   — create collection for all endpoints
 ```
+
+---
+
+## Git Workflow
+
+### Conventional Commits
+
+Format: `type(scope): description`
+
+| Type | When | Example |
+|---|---|---|
+| `feat` | New feature | `feat(auth): add JWT refresh token` |
+| `fix` | Bug fix | `fix(jobs): handle null salary filter` |
+| `docs` | Documentation | `docs: update API spec for applications` |
+| `refactor` | Code restructure | `refactor(companies): extract upload service` |
+| `test` | Add/update tests | `test(jobs): add ownership check tests` |
+| `chore` | Config, deps, CI | `chore: add MinIO to docker-compose` |
+| `style` | Formatting, lint | `style: fix biome warnings` |
+
+### Atomic Commits
+
+- One logical change per commit
+- Each commit should be revertable without breaking
+- Don't mix unrelated changes
+
+**Good:**
+```
+feat(applications): add resume upload endpoint
+test(applications): add upload + ACL tests
+```
+
+**Bad:**
+```
+feat(applications): add upload + fix jobs + update readme
+```
+
+### Branch Strategy
+
+```
+main        ← production-ready
+  └── feat/* ← feature branches (feat/auth, feat/jobs)
+```
+
+- Branch from `main`
+- PR to `main`
+- Squash merge preferred
