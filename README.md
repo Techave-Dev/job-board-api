@@ -662,24 +662,24 @@ sequenceDiagram
 
 ---
 
-## Task List
+## Tasks
 
-```
-1.  Project Setup        — NestJS + Prisma + Docker Compose + config + MinIO + Redis
-2.  Auth                 — register (with role), login, refresh, logout
-3.  RBAC + ACL           — RolesGuard, @Roles, @Public, ownership in service
-4.  Companies            — CRUD + logo upload (MinIO)
-5.  Jobs                 — CRUD + ownership + attachments (MinIO)
-6.  Applications         — apply (resume upload) + status review
-7.  File Access          — GET /files/:type/:id with ACL check + presigned URL
-8.  Cache                — ioredis cache-aside for job listings + job detail + company detail
-9.  Notifications        — BullMQ queue + SSE stream
-10. WebSocket Chat       — Socket.IO, 2 events only (send/receive), simple
-11. Swagger + Config     — @nestjs/swagger code-first + @nestjs/config schema
-12. Logging              — pino + LoggingInterceptor + RequestIdMiddleware
-13. Testing              — unit + integration + e2e tests
-14. Postman Collection   — create collection for all endpoints
-```
+| # | Task | Complexity | Learning | Total | Required |
+|---|---|---|---|---|---|
+| 1 | Project Setup | 3 | 2 | 5 | ✅ |
+| 2 | Auth | 2 | 2 | 4 | ✅ |
+| 3 | RBAC + ACL | 4 | 5 | 9 | ✅ |
+| 4 | Companies | 2 | 2 | 4 | ✅ |
+| 5 | Jobs | 3 | 3 | 6 | ✅ |
+| 6 | Applications | 3 | 3 | 6 | ✅ |
+| 7 | File Access | 3 | 4 | 7 | ✅ |
+| 8 | Cache | 4 | 4 | 8 | ⬜ |
+| 9 | Notifications (SSE) | 4 | 4 | 8 | ✅ |
+| 10 | WebSocket Chat | 4 | 4 | 8 | ✅ |
+| 11 | Swagger + Config | 2 | 3 | 5 | ✅ |
+| 12 | Logging | 3 | 3 | 6 | ✅ |
+| 13 | Testing | 4 | 5 | 9 | ✅ |
+| 14 | Postman Collection | 1 | 2 | 3 | ⬜ |
 
 ---
 
