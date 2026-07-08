@@ -19,7 +19,7 @@ Build a Job Board API where companies can post jobs and applicants can apply. Fe
 | Queue | BullMQ + Redis |
 | Cache | ioredis (cache-aside) |
 | Storage | MinIO (S3-compatible) |
-| Testing | Vitest (unit + integration + e2e) |
+| Testing | Vitest or Jest (unit + integration + e2e) |
 
 ---
 
