@@ -1,0 +1,161 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  applicant
+  company
+}
+
+enum ApplicationStatus {
+  pending
+  reviewed
+  accepted
+  rejected
+}
+
+enum NotificationType {
+  new_job
+  new_application
+  application_update
+  new_message
+}
+
+model User {
+  id        BigInt   @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company       Company?
+  applications  Application[]
+  refreshTokens RefreshToken[]
+  notifications Notification[]
+  chatMessages  ChatMessage[]
+
+  @@map("users")
+}
+
+model Company {
+  id          BigInt   @id @default(autoincrement())
+  userId      BigInt   @unique
+  name        String
+  description String?
+  logoUrl     String?
+  website     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs Job[]
+
+  @@map("companies")
+}
+
+model Job {
+  id          BigInt   @id @default(autoincrement())
+  companyId   BigInt
+  title       String
+  description String
+  location    String?
+  salaryMin   Int?
+  salaryMax   Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
+  attachments  Attachment[]
+
+  @@index([companyId])
+  @@index([location])
+  @@index([salaryMin, salaryMax])
+  @@map("jobs")
+}
+
+model Application {
+  id        BigInt            @id @default(autoincrement())
+  jobId     BigInt
+  userId    BigInt
+  status    ApplicationStatus @default(pending)
+  resumeUrl String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  job          Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatMessages ChatMessage[]
+
+  @@unique([jobId, userId])
+  @@index([jobId])
+  @@index([userId])
+  @@map("applications")
+}
+
+model Attachment {
+  id           BigInt   @id @default(autoincrement())
+  jobId        BigInt
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@map("attachments")
+}
+
+model ChatMessage {
+  id            BigInt   @id @default(autoincrement())
+  applicationId BigInt
+  senderId      BigInt
+  content       String
+  createdAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sender      User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, createdAt])
+  @@map("chat_messages")
+}
+
+model Notification {
+  id        BigInt           @id @default(autoincrement())
+  userId    BigInt
+  type      NotificationType
+  title     String
+  message   String
+  data      Json
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  tokenHash String
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
