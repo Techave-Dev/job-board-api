@@ -3,7 +3,7 @@ services:
     image: postgres:17-alpine
     container_name: jobboard-postgres
     ports:
-      - '5436:5432'
+      - '5435:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -20,7 +20,7 @@ services:
     image: redis:7-alpine
     container_name: jobboard-redis
     ports:
-      - '6380:6379'
+      - '6379:6379'
     command: redis-server --appendonly yes
     volumes:
       - redisdata:/data
