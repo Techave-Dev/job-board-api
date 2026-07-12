@@ -16,4 +16,5 @@ export interface IUsersService {
     userId: string,
     dto: UpdateUserDto,
   ): Promise<Omit<UserProfile, 'createdAt'>>;
+  listIdsByRole(role: 'applicant' | 'company'): Promise<string[]>;
 }

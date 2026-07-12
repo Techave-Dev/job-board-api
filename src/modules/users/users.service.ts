@@ -67,4 +67,8 @@ export class UsersService implements IUsersService {
       role: updated.role,
     };
   }
+
+  async listIdsByRole(role: 'applicant' | 'company'): Promise<string[]> {
+    return this.usersRepository.listIdsByRole(role);
+  }
 }

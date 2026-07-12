@@ -14,6 +14,8 @@ import { IJobsRepository } from './interfaces/jobs.repository.interface';
 import { ICompaniesService } from '../companies/interfaces/companies.service.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
 import { ICacheService } from '../cache/interfaces/cache.service.interface';
+import { IUsersService } from '../users/interfaces/users.service.interface';
+import { INotificationsService } from '../notifications/interfaces/notifications.service.interface';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
@@ -29,6 +31,10 @@ export class JobsService implements IJobsService {
     private readonly storageService: IStorageService,
     @Inject(ICacheService)
     private readonly cacheService: ICacheService,
+    @Inject(IUsersService)
+    private readonly usersService: IUsersService,
+    @Inject(INotificationsService)
+    private readonly notificationsService: INotificationsService,
   ) {}
 
   async create(userId: string, dto: CreateJobDto) {
@@ -50,6 +56,17 @@ export class JobsService implements IJobsService {
     });
 
     await this.cacheService.scanAndDelete('jobs:*');
+    const applicantIds = await this.usersService.listIdsByRole('applicant');
+    await Promise.all(
+      applicantIds.map((applicantId) =>
+        this.notificationsService.createAndEmit(
+          applicantId,
+          'new_job',
+          'A new job was posted',
+          { jobId: result.id },
+        ),
+      ),
+    );
 
     return result;
   }

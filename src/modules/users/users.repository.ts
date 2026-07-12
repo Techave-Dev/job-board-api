@@ -8,6 +8,7 @@ import {
   getUserById,
   getUserByEmail,
   updateUser,
+  listUserIdsByRole,
 } from '../../generated/prisma/sql';
 import { PrismaService } from '../../prisma/prisma.service';
 import { nullableParam } from '../../common/utils/typed-sql.util';
@@ -65,5 +66,10 @@ export class UsersRepository implements IUsersRepository {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  async listIdsByRole(role: 'applicant' | 'company'): Promise<string[]> {
+    const rows = await this.prisma.$queryRawTyped(listUserIdsByRole(role));
+    return rows.map((r) => r.id.toString());
   }
 }

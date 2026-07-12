@@ -18,6 +18,7 @@ import {
 } from './interfaces/applications.service.interface';
 import { ICompaniesService } from '../companies/interfaces/companies.service.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
+import { INotificationsService } from '../notifications/interfaces/notifications.service.interface';
 
 @Injectable()
 export class ApplicationsService implements IApplicationsService {
@@ -28,6 +29,8 @@ export class ApplicationsService implements IApplicationsService {
     private readonly companiesService: ICompaniesService,
     @Inject(IStorageService)
     private readonly storageService: IStorageService,
+    @Inject(INotificationsService)
+    private readonly notificationsService: INotificationsService,
   ) {}
 
   async apply(
@@ -66,6 +69,16 @@ export class ApplicationsService implements IApplicationsService {
         });
       }
       throw err;
+    }
+
+    const company = await this.companiesService.findById(companyId);
+    if (company) {
+      await this.notificationsService.createAndEmit(
+        company.userId,
+        'new_application',
+        'A new application was received',
+        { applicationId: application.id, jobId: application.jobId },
+      );
     }
 
     const url = await this.storageService.getPresignedUrl(key);
@@ -139,6 +152,14 @@ export class ApplicationsService implements IApplicationsService {
 
     await this.assertJobOwnership(application.jobId, userId);
     const updated = await this.applicationsRepository.updateStatus(id, status);
+
+    await this.notificationsService.createAndEmit(
+      updated.userId,
+      'application_update',
+      'Your application status was updated',
+      { applicationId: updated.id, status: updated.status },
+    );
+
     return {
       id: updated.id,
       jobId: updated.jobId,

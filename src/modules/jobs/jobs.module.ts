@@ -6,9 +6,11 @@ import { IJobsRepository } from './interfaces/jobs.repository.interface';
 import { IJobsService } from './interfaces/jobs.service.interface';
 import { CompaniesModule } from '../companies/companies.module';
 import { StorageModule } from '../storage/storage.module';
+import { UsersModule } from '../users/users.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [CompaniesModule, StorageModule],
+  imports: [CompaniesModule, StorageModule, UsersModule, NotificationsModule],
   controllers: [JobsController],
   providers: [
     {

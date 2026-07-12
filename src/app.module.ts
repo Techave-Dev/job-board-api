@@ -8,6 +8,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ConfigModule } from '@nestjs/config';
 import { RequestIdMiddleware } from './common/middlewares/request-id.middleware';
 import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
@@ -28,6 +29,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     StorageModule,
     CacheModule,
     ApplicationsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

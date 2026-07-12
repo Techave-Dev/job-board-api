@@ -5,9 +5,11 @@ import { ApplicationsRepository } from './applications.repository';
 import { IApplicationsService } from './interfaces/applications.service.interface';
 import { IApplicationsRepository } from './interfaces/applications.repository.interface';
 import { CompaniesModule } from '../companies/companies.module';
+import { StorageModule } from '../storage/storage.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [CompaniesModule],
+  imports: [CompaniesModule, StorageModule, NotificationsModule],
   controllers: [ApplicationsController],
   providers: [
     {
