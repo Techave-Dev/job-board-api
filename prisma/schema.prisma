@@ -34,7 +34,7 @@ model User {
   name      String   @db.VarChar(255)
   role      Role
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   company       Company?
   applications  Application[]
@@ -49,11 +49,11 @@ model Company {
   id          BigInt   @id @default(autoincrement())
   userId      BigInt   @unique @map("user_id")
   name        String   @db.VarChar(255)
-  description String?  // Tetap TEXT
-  logoUrl     String?  @map("logo_url") // Tetap TEXT
+  description String?  
+  logoUrl     String?  @map("logo_url") 
   website     String?  @db.VarChar(255)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobs Job[]
@@ -65,12 +65,12 @@ model Job {
   id          BigInt   @id @default(autoincrement())
   companyId   BigInt   @map("company_id")
   title       String   @db.VarChar(255)
-  description String   // Tetap TEXT
+  description String   
   location    String?  @db.VarChar(255)
   salaryMin   Int?     @map("salary_min")
   salaryMax   Int?     @map("salary_max")
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
@@ -87,9 +87,9 @@ model Application {
   jobId     BigInt            @map("job_id")
   userId    BigInt            @map("user_id")
   status    ApplicationStatus @default(pending)
-  resumeUrl String            @map("resume_url") // Tetap TEXT
+  resumeUrl String            @map("resume_url")
   createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   job          Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -120,7 +120,7 @@ model ChatMessage {
   id            BigInt   @id @default(autoincrement())
   applicationId BigInt   @map("application_id")
   senderId      BigInt   @map("sender_id")
-  content       String   // Tetap TEXT
+  content       String   
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
@@ -135,7 +135,7 @@ model Notification {
   userId    BigInt           @map("user_id")
   type      NotificationType
   title     String           @db.VarChar(255)
-  message   String           // Tetap TEXT
+  message   String           
   data      Json
   read      Boolean          @default(false)
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
