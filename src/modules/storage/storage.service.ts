@@ -4,6 +4,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
   HeadBucketCommand,
   CreateBucketCommand,
 } from '@aws-sdk/client-s3';
@@ -65,5 +66,14 @@ export class StorageService implements OnModuleInit {
     return getSignedUrl(this.client, command, {
       expiresIn: PRESIGNED_URL_EXPIRY_SECONDS,
     });
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
   }
 }

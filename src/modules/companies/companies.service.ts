@@ -8,8 +8,12 @@ import {
 import { ICompaniesService } from './interfaces/companies.service.interface';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { ICompaniesRepository } from './interfaces/companies.repository.interface';
+import {
+  ICompaniesRepository,
+  CompanyWithJobCount,
+} from './interfaces/companies.repository.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
+import { ICacheService } from '../cache/interfaces/cache.service.interface';
 
 @Injectable()
 export class CompaniesService implements ICompaniesService {
@@ -18,6 +22,8 @@ export class CompaniesService implements ICompaniesService {
     private readonly companiesRepository: ICompaniesRepository,
     @Inject(IStorageService)
     private readonly storageService: IStorageService,
+    @Inject(ICacheService)
+    private readonly cacheService: ICacheService,
   ) {}
 
   async create(userId: string, dto: CreateCompanyDto) {
@@ -42,6 +48,10 @@ export class CompaniesService implements ICompaniesService {
   }
 
   async findById(id: string) {
+    const cacheKey = `companies:detail:${id}`;
+    const cached = await this.cacheService.get<CompanyWithJobCount>(cacheKey);
+    if (cached) return cached;
+
     const company = await this.companiesRepository.findById(id);
     if (!company) {
       throw new NotFoundException({
@@ -49,6 +59,8 @@ export class CompaniesService implements ICompaniesService {
         message: 'Company not found',
       });
     }
+
+    await this.cacheService.set(cacheKey, company, 900);
 
     return company;
   }
@@ -69,7 +81,15 @@ export class CompaniesService implements ICompaniesService {
       });
     }
 
-    return this.companiesRepository.updateById(id, dto);
+    const result = await this.companiesRepository.updateById(id, dto);
+
+    await this.cacheService.del(`companies:detail:${id}`);
+
+    return result;
+  }
+
+  async findByUserId(userId: string) {
+    return this.companiesRepository.findByUserId(userId);
   }
 
   async uploadLogo(
@@ -97,6 +117,8 @@ export class CompaniesService implements ICompaniesService {
 
     await this.storageService.upload(key, file.buffer, file.mimetype);
     await this.companiesRepository.updateLogoUrl(id, key);
+
+    await this.cacheService.del(`companies:detail:${id}`);
 
     const logoUrl = await this.storageService.getPresignedUrl(key);
     return { logoUrl };

@@ -20,6 +20,7 @@ export interface ICompaniesService {
     userId: string,
     dto: UpdateCompanyDto,
   ): Promise<Company>;
+  findByUserId(userId: string): Promise<Company | null>;
   uploadLogo(
     id: string,
     userId: string,
