@@ -85,6 +85,10 @@ export class ApplicationsService implements IApplicationsService {
     return { ...application, resumeUrl: url };
   }
 
+  async findById(id: string) {
+    return this.applicationsRepository.findById(id);
+  }
+
   async listMine(
     userId: string,
     query: ListApplicationsDto,

@@ -1,5 +1,8 @@
 import { ApplicationStatus } from '../../../generated/prisma';
-import { CreatedApplication } from './applications.repository.interface';
+import {
+  Application,
+  CreatedApplication,
+} from './applications.repository.interface';
 
 export interface ListApplicationsDto {
   status?: ApplicationStatus;
@@ -63,6 +66,7 @@ export interface IApplicationsService {
     jobId: string,
     file: Express.Multer.File,
   ): Promise<CreatedApplication>;
+  findById(id: string): Promise<Application | null>;
   listMine(
     userId: string,
     query: ListApplicationsDto,

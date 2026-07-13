@@ -10,6 +10,7 @@ import { CacheModule } from './modules/cache/cache.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { FilesModule } from './modules/files/files.module';
 import { ConfigModule } from '@nestjs/config';
 import { RequestIdMiddleware } from './common/middlewares/request-id.middleware';
 import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
@@ -32,6 +33,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     ApplicationsModule,
     NotificationsModule,
     ChatModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

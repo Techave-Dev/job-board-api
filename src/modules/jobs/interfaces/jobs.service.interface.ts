@@ -5,6 +5,7 @@ import {
   Job,
   JobListItem,
   Attachment,
+  AttachmentWithCompanyId,
   CreatedJob,
   CreatedAttachment,
 } from './jobs.repository.interface';
@@ -26,6 +27,7 @@ export interface IJobsService {
   create(userId: string, dto: CreateJobDto): Promise<CreatedJob>;
   list(query: PaginationQueryDto): Promise<JobListResult>;
   findById(id: string): Promise<JobDetail>;
+  getAttachmentById(id: string): Promise<AttachmentWithCompanyId | null>;
   updateById(id: string, userId: string, dto: UpdateJobDto): Promise<Job>;
   deleteById(id: string, userId: string): Promise<void>;
   uploadAttachment(

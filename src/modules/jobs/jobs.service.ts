@@ -130,6 +130,10 @@ export class JobsService implements IJobsService {
     return result;
   }
 
+  async getAttachmentById(id: string) {
+    return this.jobsRepository.getAttachmentById(id);
+  }
+
   async updateById(id: string, userId: string, dto: UpdateJobDto) {
     await this.assertOwnership(id, userId);
 
