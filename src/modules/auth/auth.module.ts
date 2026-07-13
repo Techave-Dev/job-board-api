@@ -21,6 +21,6 @@ import { IAuthRepository } from './interfaces/auth.repository.interface';
     },
     JwtStrategy,
   ],
-  exports: [IAuthService],
+  exports: [IAuthService, IAuthRepository],
 })
 export class AuthModule {}

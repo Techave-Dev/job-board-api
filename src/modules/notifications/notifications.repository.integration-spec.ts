@@ -44,12 +44,11 @@ describe('NotificationsRepository (Integration Test)', () => {
   describe('create', () => {
     it('should create and return a new notification with formatted jsonb data', async () => {
       const notification = await repository.create({
-        id: '',
         userId: seedUserId,
         type: 'new_job',
-        title: 'Lowongan Baru',
-        message: 'Ada lowongan backend nodejs',
-        data: JSON.stringify({ jobId: '99' }),
+        title: 'New job available',
+        message: 'A new backend nodejs position is open',
+        data: { jobId: '99' },
       });
 
       expect(notification.id).toBeDefined();
@@ -65,29 +64,27 @@ describe('NotificationsRepository (Integration Test)', () => {
   describe('listByUserId', () => {
     it('should return list of notifications for specific user', async () => {
       const created = await repository.create({
-        id: '',
         userId: seedUserId,
         type: 'new_message',
-        title: 'Pesan baru',
-        message: 'Halo mas ro',
-        data: JSON.stringify({ chatId: '1' }),
+        title: 'New message',
+        message: 'Hello there',
+        data: { chatId: '1' },
       });
 
       const list = await repository.listByUserId(seedUserId, null, 10, 0);
       expect(list.length).toBeGreaterThan(0);
       const found = list.find((n) => n.id === created.id);
       expect(found).toBeDefined();
-      expect(found?.title).toBe('Pesan baru');
+      expect(found?.title).toBe('New message');
     });
 
     it('should filter only unread notifications when unread parameter is true', async () => {
       const created = await repository.create({
-        id: '',
         userId: seedUserId,
         type: 'application_update',
-        title: 'Belum Dibaca',
-        message: 'Info lamaran',
-        data: JSON.stringify({}),
+        title: 'Unread notification',
+        message: 'Application status info',
+        data: {},
       });
 
       const list = await repository.listByUserId(seedUserId, true, 10, 0);
@@ -111,12 +108,11 @@ describe('NotificationsRepository (Integration Test)', () => {
   describe('findById', () => {
     it('should return compact owner check object if exists', async () => {
       const created = await repository.create({
-        id: '',
         userId: seedUserId,
         type: 'application_update',
-        title: 'Status Berubah',
-        message: 'Lamaran kamu diterima',
-        data: JSON.stringify({ appId: '5' }),
+        title: 'Status updated',
+        message: 'Your application has been accepted',
+        data: { appId: '5' },
       });
 
       const result = await repository.findById(created.id);
@@ -136,12 +132,11 @@ describe('NotificationsRepository (Integration Test)', () => {
   describe('markAsRead', () => {
     it('should update and return notification status to read true', async () => {
       const created = await repository.create({
-        id: '',
         userId: seedUserId,
         type: 'new_job',
-        title: 'Tes Read',
-        message: 'Ujicoba read status',
-        data: JSON.stringify({}),
+        title: 'Read test',
+        message: 'Testing read status',
+        data: {},
       });
 
       const updated = await repository.markAsRead(created.id);
