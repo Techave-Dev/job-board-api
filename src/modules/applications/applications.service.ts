@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   NotFoundException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { ApplicationStatus } from '../../generated/prisma';
 import {
@@ -22,6 +23,8 @@ import { INotificationsService } from '../notifications/interfaces/notifications
 
 @Injectable()
 export class ApplicationsService implements IApplicationsService {
+  private readonly logger = new Logger('ApplicationsService');
+
   constructor(
     @Inject(IApplicationsRepository)
     private readonly applicationsRepository: IApplicationsRepository,
@@ -82,6 +85,14 @@ export class ApplicationsService implements IApplicationsService {
     }
 
     const url = await this.storageService.getPresignedUrl(key);
+
+    this.logger.log({
+      message: 'Application submitted',
+      applicationId: application.id,
+      jobId,
+      userId,
+    });
+
     return { ...application, resumeUrl: url };
   }
 
@@ -156,6 +167,12 @@ export class ApplicationsService implements IApplicationsService {
 
     await this.assertJobOwnership(application.jobId, userId);
     const updated = await this.applicationsRepository.updateStatus(id, status);
+
+    this.logger.log({
+      message: 'Application status updated',
+      applicationId: id,
+      status,
+    });
 
     await this.notificationsService.createAndEmit(
       updated.userId,

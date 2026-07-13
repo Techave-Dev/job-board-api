@@ -3,6 +3,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import {
   IChatService,
@@ -17,6 +18,8 @@ import { INotificationsService } from '../notifications/interfaces/notifications
 
 @Injectable()
 export class ChatService implements IChatService {
+  private readonly logger = new Logger('ChatService');
+
   constructor(
     @Inject(IChatRepository)
     private readonly chatRepository: IChatRepository,
@@ -83,6 +86,8 @@ export class ChatService implements IChatService {
       senderId,
       content,
     });
+
+    this.logger.log({ message: 'Chat message sent', applicationId, senderId });
 
     const recipientId =
       senderId === accessInfo.applicantUserId

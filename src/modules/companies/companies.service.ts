@@ -4,6 +4,7 @@ import {
   ConflictException,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { ICompaniesService } from './interfaces/companies.service.interface';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -17,6 +18,8 @@ import { ICacheService } from '../cache/interfaces/cache.service.interface';
 
 @Injectable()
 export class CompaniesService implements ICompaniesService {
+  private readonly logger = new Logger('CompaniesService');
+
   constructor(
     @Inject(ICompaniesRepository)
     private readonly companiesRepository: ICompaniesRepository,
@@ -36,6 +39,13 @@ export class CompaniesService implements ICompaniesService {
     }
 
     const company = await this.companiesRepository.create({ userId, ...dto });
+
+    this.logger.log({
+      message: 'Company created',
+      companyId: company.id,
+      userId,
+    });
+
     return {
       id: company.id,
       userId: company.userId,
@@ -119,6 +129,8 @@ export class CompaniesService implements ICompaniesService {
     await this.companiesRepository.updateLogoUrl(id, key);
 
     await this.cacheService.del(`companies:detail:${id}`);
+
+    this.logger.log({ message: 'Company logo uploaded', companyId: id });
 
     const logoUrl = await this.storageService.getPresignedUrl(key);
     return { logoUrl };
