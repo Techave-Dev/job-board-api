@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const QueryChatMessagesSchema = z.object({
@@ -5,4 +6,6 @@ export const QueryChatMessagesSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
 });
 
-export type QueryChatMessagesDto = z.infer<typeof QueryChatMessagesSchema>;
+export class QueryChatMessagesDto extends createZodDto(
+  QueryChatMessagesSchema,
+) {}

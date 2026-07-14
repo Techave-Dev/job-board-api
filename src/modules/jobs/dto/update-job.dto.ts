@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const UpdateJobSchema = z.object({
@@ -8,4 +9,4 @@ export const UpdateJobSchema = z.object({
   salaryMax: z.number().int().positive().optional(),
 });
 
-export type UpdateJobDto = z.infer<typeof UpdateJobSchema>;
+export class UpdateJobDto extends createZodDto(UpdateJobSchema) {}

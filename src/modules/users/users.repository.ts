@@ -51,6 +51,7 @@ export class UsersRepository implements IUsersRepository {
         BigInt(id),
         nullableParam(data.name),
         nullableParam(data.email),
+        nullableParam(data.role),
       ),
     );
 

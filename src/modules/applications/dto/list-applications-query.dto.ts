@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const listApplicationsQuerySchema = z.object({
@@ -6,6 +7,6 @@ export const listApplicationsQuerySchema = z.object({
   status: z.enum(['pending', 'reviewed', 'accepted', 'rejected']).optional(),
 });
 
-export type ListApplicationsQueryDto = z.infer<
-  typeof listApplicationsQuerySchema
->;
+export class ListApplicationsQueryDto extends createZodDto(
+  listApplicationsQuerySchema,
+) {}

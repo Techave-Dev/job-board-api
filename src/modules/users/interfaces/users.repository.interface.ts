@@ -10,6 +10,7 @@ export interface User {
 export interface UpdateUserInput {
   name?: string;
   email?: string;
+  role?: 'applicant' | 'company';
 }
 
 export const IUsersRepository = Symbol('IUsersRepository');

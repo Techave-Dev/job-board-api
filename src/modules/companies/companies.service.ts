@@ -15,6 +15,7 @@ import {
 } from './interfaces/companies.repository.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
 import { ICacheService } from '../cache/interfaces/cache.service.interface';
+import { IUsersRepository } from '../users/interfaces/users.repository.interface';
 
 @Injectable()
 export class CompaniesService implements ICompaniesService {
@@ -27,6 +28,8 @@ export class CompaniesService implements ICompaniesService {
     private readonly storageService: IStorageService,
     @Inject(ICacheService)
     private readonly cacheService: ICacheService,
+    @Inject(IUsersRepository)
+    private readonly usersRepository: IUsersRepository,
   ) {}
 
   async create(userId: string, dto: CreateCompanyDto) {
@@ -39,6 +42,8 @@ export class CompaniesService implements ICompaniesService {
     }
 
     const company = await this.companiesRepository.create({ userId, ...dto });
+
+    await this.usersRepository.updateById(userId, { role: 'company' });
 
     this.logger.log({
       message: 'Company created',
