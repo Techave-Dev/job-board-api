@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Inject } from '@nestjs/common';
+import { Controller, Get, Param, Inject, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { IFilesService, FileType } from './interfaces/files.service.interface';
 import { ApiResponse as ApiRes } from '../../common/types/api-response';
@@ -16,7 +16,7 @@ export class FilesController {
   @ApiParam({
     name: 'type',
     description: 'File type',
-    enum: ['resume', 'logo', 'attachment'],
+    enum: ['resumes', 'logos', 'attachments'],
   })
   @ApiParam({ name: 'id', description: 'File ID' })
   @ApiOperation({ summary: 'Get a presigned URL to access a file' })
@@ -54,6 +54,13 @@ export class FilesController {
     @CurrentUser('userId') userId?: string,
     @CurrentUser('role') userRole?: string,
   ): Promise<ApiRes> {
+    if (type !== 'logos' && !userId) {
+      throw new ForbiddenException({
+        code: 'file.forbidden',
+        message: 'Forbidden',
+      });
+    }
+
     const result = await this.filesService.getPresignedUrl(
       type as FileType,
       id,

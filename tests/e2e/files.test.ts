@@ -55,7 +55,7 @@ describe('Files (e2e)', () => {
       expect(res.body.data.url).toBeDefined();
     });
 
-    it('should return 403 when getting resume without auth', async () => {
+    it('should return 401 when getting resume without auth', async () => {
       const res = await request(appInstance.getHttpServer()).get(
         '/files/resumes/1',
       );

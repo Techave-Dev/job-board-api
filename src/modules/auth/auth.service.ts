@@ -35,7 +35,7 @@ export class AuthService implements IAuthService {
     const existing = await this.authRepository.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException({
-        code: 'auth.user.exists',
+        code: 'auth.email_exists',
         message: 'Email already registered',
       });
     }
@@ -55,7 +55,7 @@ export class AuthService implements IAuthService {
     const record = await this.authRepository.findPasswordByEmail(dto.email);
     if (!record) {
       throw new UnauthorizedException({
-        code: 'auth.credentials.invalid',
+        code: 'auth.invalid_credentials',
         message: 'Invalid email or password',
       });
     }
@@ -63,7 +63,7 @@ export class AuthService implements IAuthService {
     const isValid = await bcrypt.compare(dto.password, record.passwordHash);
     if (!isValid) {
       throw new UnauthorizedException({
-        code: 'auth.credentials.invalid',
+        code: 'auth.invalid_credentials',
         message: 'Invalid email or password',
       });
     }
@@ -86,7 +86,7 @@ export class AuthService implements IAuthService {
     const stored = await this.authRepository.findRefreshToken(dto.refreshToken);
     if (!stored) {
       throw new UnauthorizedException({
-        code: 'auth.refresh.invalid',
+        code: 'auth.invalid_token',
         message: 'Invalid refresh token',
       });
     }

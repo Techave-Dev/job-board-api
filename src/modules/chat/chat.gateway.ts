@@ -5,7 +5,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Server, Socket, DefaultEventsMap } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import { IChatService } from './interfaces/chat.service.interface';
@@ -42,6 +42,8 @@ function isJwtPayload(decoded: string | jwt.JwtPayload): decoded is JwtPayload {
   cors: { origin: '*', credentials: true },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger('ChatGateway');
+
   @WebSocketServer()
   server!: Server;
 
@@ -92,7 +94,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: ChatSocket): void {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage('joinApplication')

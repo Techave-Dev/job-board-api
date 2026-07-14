@@ -59,6 +59,9 @@ importers:
       ioredis:
         specifier: ^5.11.1
         version: 5.11.1
+      jsonwebtoken:
+        specifier: ^9.0.3
+        version: 9.0.3
       multer:
         specifier: ^2.2.0
         version: 2.2.0
@@ -159,9 +162,6 @@ importers:
       jest-mock-extended:
         specifier: ^4.0.1
         version: 4.0.1(@jest/globals@30.4.1)(jest@30.4.2(@types/node@24.13.3)(ts-node@10.9.2(@types/node@24.13.3)(typescript@5.9.3)))(typescript@5.9.3)
-      jsonwebtoken:
-        specifier: ^9.0.3
-        version: 9.0.3
       pg:
         specifier: ^8.22.0
         version: 8.22.0

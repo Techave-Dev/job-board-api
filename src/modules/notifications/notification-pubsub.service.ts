@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { Subject, Observable } from 'rxjs';
@@ -30,18 +30,17 @@ function isRedisMessage(obj: unknown): obj is RedisMessage {
 export class NotificationPubSubService
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger('NotificationPubSubService');
   private readonly publisher: Redis;
   private readonly subscriber: Redis;
   private readonly notificationSubject$ = new Subject<RedisMessage>();
 
   constructor(private readonly configService: ConfigService) {
-    const redisOptions = {
-      host: this.configService.get<string>('REDIS_HOST') ?? 'localhost',
-      port: this.configService.get<number>('REDIS_PORT') ?? 6379,
-    };
+    const redisUrl =
+      this.configService.get<string>('REDIS_URL') ?? 'redis://localhost:6379';
 
-    this.publisher = new Redis(redisOptions);
-    this.subscriber = new Redis(redisOptions);
+    this.publisher = new Redis(redisUrl);
+    this.subscriber = new Redis(redisUrl);
   }
 
   async onModuleInit(): Promise<void> {
@@ -54,9 +53,9 @@ export class NotificationPubSubService
             this.notificationSubject$.next(parsed);
           }
         } catch (error) {
-          console.error(
-            'Failed to parse inbound Redis notification message:',
-            error,
+          this.logger.error(
+            'Failed to parse inbound Redis notification message',
+            error instanceof Error ? error.stack : undefined,
           );
         }
       }
