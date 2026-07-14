@@ -61,11 +61,8 @@ export class ApplicationsService implements IApplicationsService {
         resumeUrl: key,
       });
     } catch (err: unknown) {
-      if (
-        err instanceof Error &&
-        'code' in err &&
-        (err as { code: unknown }).code === 'P2002'
-      ) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('23505') || msg.includes('P2002')) {
         throw new ConflictException({
           code: 'application.already_applied',
           message: 'Already applied',

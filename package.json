@@ -7,19 +7,19 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,tests}/**/*.ts\" --fix",
     "test": "jest",
     "test:unit": "jest --testPathPatterns='^(?!.*integration)(?!.*e2e).*\\.spec\\.ts$'",
     "test:integration": "jest --testPathPatterns='\\.integration-spec\\.ts$'",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "jest --config ./tests/jest-e2e.json",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate --sql"
@@ -67,6 +67,7 @@
     "@types/multer-s3": "^3.0.3",
     "@types/node": "^24.0.0",
     "@types/passport-jwt": "^4.0.1",
+    "@types/pg": "^8.20.0",
     "@types/supertest": "^7.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
@@ -76,6 +77,7 @@
     "jest": "^30.0.0",
     "jest-mock-extended": "^4.0.1",
     "jsonwebtoken": "^9.0.3",
+    "pg": "^8.22.0",
     "prettier": "^3.4.2",
     "prisma": "^7.8.0",
     "source-map-support": "^0.5.21",
@@ -95,8 +97,8 @@
     ],
     "rootDir": "src",
     "testRegex": "(\\.spec|\\.integration-spec)\\.ts$",
-    "setupFiles": [
-      "../test/test.setup.ts"
+    "setupFilesAfterEnv": [
+      "../tests/setup/setup-file.ts"
     ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

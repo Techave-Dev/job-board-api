@@ -9,7 +9,7 @@ export interface JwtPayload {
 }
 
 export interface RequestUser {
-  id: string;
+  userId: string;
   email: string;
   name: string;
   role: 'applicant' | 'company';
@@ -45,7 +45,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     return {
-      id: user.id,
+      userId: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
