@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import request from 'supertest';
+import request, { type Response } from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { prisma } from './db';
 import * as bcrypt from 'bcrypt';
@@ -38,11 +38,11 @@ export async function seedUser(data: RegisterInput) {
   });
 }
 
-export async function register(app: INestApplication, data: RegisterInput) {
+export async function register(app: INestApplication, data: RegisterInput): Promise<Response> {
   return request(app.getHttpServer()).post('/auth/register').send(data);
 }
 
-export async function login(app: INestApplication, data: LoginInput) {
+export async function login(app: INestApplication, data: LoginInput): Promise<Response> {
   return request(app.getHttpServer()).post('/auth/login').send(data);
 }
 
@@ -59,7 +59,7 @@ export async function authedReq(
   url: string,
   token: string,
   body?: unknown,
-) {
+): Promise<Response> {
   const req = request(app.getHttpServer())
     [method](url)
     .set('Authorization', `Bearer ${token}`);

@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "prebuild": "prisma generate --sql",
+    "postbuild": "node -e \"require('fs').cpSync('src/generated','dist/src/generated',{recursive:true,force:true})\"",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -45,6 +47,7 @@
     "multer": "^2.2.0",
     "multer-s3": "^3.0.1",
     "nestjs-pino": "^4.6.1",
+    "nestjs-zod": "^5.4.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pino": "^10.3.1",
