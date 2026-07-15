@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken';
 import { ChatGateway } from './chat.gateway';
 import { IChatService } from './interfaces/chat.service.interface';
 import { IAuthRepository } from '../auth/interfaces/auth.repository.interface';
-import { Server, DefaultEventsMap } from 'socket.io';
+import { Server } from 'socket.io';
 
 type MockSocket = {
   id: string;
@@ -15,9 +15,7 @@ type MockSocket = {
   disconnect: jest.Mock;
 };
 
-function createMockSocket(
-  overrides: Partial<MockSocket> = {},
-): MockSocket {
+function createMockSocket(overrides: Partial<MockSocket> = {}): MockSocket {
   return {
     id: 'socket-1',
     handshake: { query: {} },
@@ -61,10 +59,7 @@ describe('ChatGateway', () => {
 
   describe('handleConnection', () => {
     it('should store userId and name on valid token', async () => {
-      const token = jwt.sign(
-        { sub: '100', email: 'test@test.com' },
-        jwtSecret,
-      );
+      const token = jwt.sign({ sub: '100', email: 'test@test.com' }, jwtSecret);
       const client = createMockSocket({
         handshake: { query: { token } },
       });
@@ -111,10 +106,7 @@ describe('ChatGateway', () => {
     });
 
     it('should disconnect when user not found', async () => {
-      const token = jwt.sign(
-        { sub: '100', email: 'test@test.com' },
-        jwtSecret,
-      );
+      const token = jwt.sign({ sub: '100', email: 'test@test.com' }, jwtSecret);
       const client = createMockSocket({
         handshake: { query: { token } },
       });
@@ -135,10 +127,9 @@ describe('ChatGateway', () => {
       client.data.userId = '100';
       mockChatService.checkAccess.mockResolvedValue(true);
 
-      await gateway.handleJoinApplication(
-        client as unknown as never,
-        { applicationId: '1' },
-      );
+      await gateway.handleJoinApplication(client as unknown as never, {
+        applicationId: '1',
+      });
 
       expect(client.join).toHaveBeenCalledWith('chat:application:1');
       expect(client.emit).not.toHaveBeenCalled();
@@ -149,10 +140,9 @@ describe('ChatGateway', () => {
       client.data.userId = '100';
       mockChatService.checkAccess.mockResolvedValue(false);
 
-      await gateway.handleJoinApplication(
-        client as unknown as never,
-        { applicationId: '1' },
-      );
+      await gateway.handleJoinApplication(client as unknown as never, {
+        applicationId: '1',
+      });
 
       expect(client.emit).toHaveBeenCalledWith('error', {
         message: 'Forbidden',
@@ -163,10 +153,9 @@ describe('ChatGateway', () => {
     it('should emit error when not authenticated', async () => {
       const client = createMockSocket();
 
-      await gateway.handleJoinApplication(
-        client as unknown as never,
-        { applicationId: '1' },
-      );
+      await gateway.handleJoinApplication(client as unknown as never, {
+        applicationId: '1',
+      });
 
       expect(client.emit).toHaveBeenCalledWith('error', {
         message: 'Not authenticated',
@@ -191,10 +180,10 @@ describe('ChatGateway', () => {
       mockChatService.checkAccess.mockResolvedValue(true);
       mockChatService.sendMessage.mockResolvedValue(mockMessage);
 
-      await gateway.handleSendMessage(
-        client as unknown as never,
-        { applicationId: '1', content: 'Hello' },
-      );
+      await gateway.handleSendMessage(client as unknown as never, {
+        applicationId: '1',
+        content: 'Hello',
+      });
 
       expect(mockChatService.sendMessage).toHaveBeenCalledWith(
         '1',
@@ -207,10 +196,10 @@ describe('ChatGateway', () => {
     it('should emit error when not authenticated', async () => {
       const client = createMockSocket();
 
-      await gateway.handleSendMessage(
-        client as unknown as never,
-        { applicationId: '1', content: 'Hello' },
-      );
+      await gateway.handleSendMessage(client as unknown as never, {
+        applicationId: '1',
+        content: 'Hello',
+      });
 
       expect(client.emit).toHaveBeenCalledWith('error', {
         message: 'Not authenticated',
@@ -222,10 +211,10 @@ describe('ChatGateway', () => {
       client.data.userId = '100';
       mockChatService.checkAccess.mockResolvedValue(false);
 
-      await gateway.handleSendMessage(
-        client as unknown as never,
-        { applicationId: '1', content: 'Hello' },
-      );
+      await gateway.handleSendMessage(client as unknown as never, {
+        applicationId: '1',
+        content: 'Hello',
+      });
 
       expect(client.emit).toHaveBeenCalledWith('error', {
         message: 'Forbidden',

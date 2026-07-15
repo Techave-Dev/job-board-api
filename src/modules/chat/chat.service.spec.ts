@@ -88,17 +88,17 @@ describe('ChatService', () => {
     it('should throw NotFoundException when application not found', async () => {
       mockRepository.getAccessInfo.mockResolvedValue(null);
 
-      await expect(
-        service.getMessages('999', '100', 1, 50),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getMessages('999', '100', 1, 50)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException when user has no access', async () => {
       mockRepository.getAccessInfo.mockResolvedValue(mockAccessInfo);
 
-      await expect(
-        service.getMessages('1', '999', 1, 50),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.getMessages('1', '999', 1, 50)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -106,7 +106,9 @@ describe('ChatService', () => {
     it('should create message and emit notification to company when applicant sends', async () => {
       mockRepository.getAccessInfo.mockResolvedValue(mockAccessInfo);
       mockRepository.create.mockResolvedValue(mockMessage);
-      mockNotificationsService.createAndEmit.mockResolvedValue(mockNotification);
+      mockNotificationsService.createAndEmit.mockResolvedValue(
+        mockNotification,
+      );
 
       const result = await service.sendMessage('1', '100', 'Hello');
 
@@ -130,7 +132,9 @@ describe('ChatService', () => {
         ...mockMessage,
         senderId: '200',
       });
-      mockNotificationsService.createAndEmit.mockResolvedValue(mockNotification);
+      mockNotificationsService.createAndEmit.mockResolvedValue(
+        mockNotification,
+      );
 
       await service.sendMessage('1', '200', 'Hi there');
 
@@ -145,17 +149,17 @@ describe('ChatService', () => {
     it('should throw NotFoundException when application not found', async () => {
       mockRepository.getAccessInfo.mockResolvedValue(null);
 
-      await expect(
-        service.sendMessage('999', '100', 'Hello'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.sendMessage('999', '100', 'Hello')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException when user has no access', async () => {
       mockRepository.getAccessInfo.mockResolvedValue(mockAccessInfo);
 
-      await expect(
-        service.sendMessage('1', '999', 'Hello'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.sendMessage('1', '999', 'Hello')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 

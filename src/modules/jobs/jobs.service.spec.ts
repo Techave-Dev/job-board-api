@@ -5,10 +5,9 @@ import { IJobsRepository } from './interfaces/jobs.repository.interface';
 import { ICompaniesService } from '../companies/interfaces/companies.service.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
 import { ICacheService } from '../cache/interfaces/cache.service.interface';
-import {
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { IUsersService } from '../users/interfaces/users.service.interface';
+import { INotificationsService } from '../notifications/interfaces/notifications.service.interface';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
 describe('JobsService', () => {
   let service: JobsService;
@@ -29,6 +28,24 @@ describe('JobsService', () => {
     scanAndDelete: jest.fn().mockResolvedValue(undefined),
     isConnected: jest.fn().mockReturnValue(true),
   };
+  const mockUsersService = {
+    getProfile: jest.fn(),
+    updateProfile: jest.fn(),
+    listIdsByRole: jest.fn().mockResolvedValue([]),
+  };
+  const mockNotificationsService = {
+    findAll: jest.fn(),
+    markAsRead: jest.fn(),
+    createAndEmit: jest.fn().mockResolvedValue({
+      id: '1',
+      userId: '1',
+      type: 'new_job',
+      message: 'test',
+      read: false,
+      data: {},
+      createdAt: new Date(),
+    }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,6 +55,8 @@ describe('JobsService', () => {
         { provide: ICompaniesService, useValue: mockCompaniesService },
         { provide: IStorageService, useValue: mockStorageService },
         { provide: ICacheService, useValue: mockCacheService },
+        { provide: IUsersService, useValue: mockUsersService },
+        { provide: INotificationsService, useValue: mockNotificationsService },
       ],
     }).compile();
 
@@ -148,7 +167,10 @@ describe('JobsService', () => {
       expect(mockRepository.count).toHaveBeenCalledWith(query);
       expect(mockCacheService.set).toHaveBeenCalledWith(
         expect.stringMatching(/^jobs:/),
-        expect.objectContaining({ data: [], meta: { page: 1, limit: 20, total: 0 } }),
+        expect.objectContaining({
+          data: [],
+          meta: { page: 1, limit: 20, total: 0 },
+        }),
         300,
       );
     });
@@ -459,9 +481,9 @@ describe('JobsService', () => {
     it('should throw NotFoundException when attachment not found', async () => {
       mockRepository.getAttachmentById.mockResolvedValue(null);
 
-      await expect(
-        service.deleteAttachment('1', '999', '1'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAttachment('1', '999', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw NotFoundException when attachment jobId mismatches', async () => {
@@ -475,9 +497,9 @@ describe('JobsService', () => {
         companyId: '10',
       });
 
-      await expect(
-        service.deleteAttachment('1', '300', '1'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAttachment('1', '300', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw NotFoundException when company not found', async () => {
@@ -492,9 +514,9 @@ describe('JobsService', () => {
       });
       mockCompaniesService.findById.mockResolvedValue(null);
 
-      await expect(
-        service.deleteAttachment('1', '300', '1'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAttachment('1', '300', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException when user is not owner', async () => {
@@ -509,9 +531,9 @@ describe('JobsService', () => {
       });
       mockCompaniesService.findById.mockResolvedValue(existingCompany);
 
-      await expect(
-        service.deleteAttachment('1', '300', '999'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.deleteAttachment('1', '300', '999')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('should throw NotFoundException when deleteAttachment returns false', async () => {
@@ -527,9 +549,9 @@ describe('JobsService', () => {
       mockCompaniesService.findById.mockResolvedValue(existingCompany);
       mockRepository.deleteAttachment.mockResolvedValue(false);
 
-      await expect(
-        service.deleteAttachment('1', '300', '1'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.deleteAttachment('1', '300', '1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

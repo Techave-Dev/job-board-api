@@ -4,7 +4,12 @@ import { ApplicationsService } from './applications.service';
 import { IApplicationsRepository } from './interfaces/applications.repository.interface';
 import { ICompaniesService } from '../companies/interfaces/companies.service.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
-import { NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { INotificationsService } from '../notifications/interfaces/notifications.service.interface';
+import {
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 
 describe('ApplicationsService', () => {
   let service: ApplicationsService;
@@ -16,6 +21,19 @@ describe('ApplicationsService', () => {
   const mockStorageService = {
     upload: jest.fn().mockResolvedValue(undefined),
     getPresignedUrl: jest.fn().mockResolvedValue('http://minio/presigned-url'),
+  };
+  const mockNotificationsService = {
+    findAll: jest.fn(),
+    markAsRead: jest.fn(),
+    createAndEmit: jest.fn().mockResolvedValue({
+      id: '1',
+      userId: '1',
+      type: 'new_application',
+      message: 'test',
+      read: false,
+      data: {},
+      createdAt: new Date(),
+    }),
   };
 
   const file = {
@@ -32,6 +50,7 @@ describe('ApplicationsService', () => {
         { provide: IApplicationsRepository, useValue: mockRepository },
         { provide: ICompaniesService, useValue: mockCompaniesService },
         { provide: IStorageService, useValue: mockStorageService },
+        { provide: INotificationsService, useValue: mockNotificationsService },
       ],
     }).compile();
 
@@ -78,7 +97,7 @@ describe('ApplicationsService', () => {
     it('should throw ConflictException when already applied (P2002)', async () => {
       mockRepository.getJobCompanyId.mockResolvedValue('10');
       mockRepository.create.mockRejectedValue(
-        Object.assign(new Error('Unique constraint failed'), {
+        Object.assign(new Error('P2002 Unique constraint failed'), {
           code: 'P2002',
         }),
       );

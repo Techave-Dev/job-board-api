@@ -56,7 +56,11 @@ describe('ApplicationsController', () => {
 
       const result = await controller.apply('5', '2', file);
 
-      expect(mockApplicationsService.apply).toHaveBeenCalledWith('2', '5', file);
+      expect(mockApplicationsService.apply).toHaveBeenCalledWith(
+        '2',
+        '5',
+        file,
+      );
       expect(result.message).toBe('Application submitted successfully');
       expect(result.data).toEqual(expectedApplication);
     });
@@ -107,7 +111,11 @@ describe('ApplicationsController', () => {
             status: 'pending',
             resumeUrl: 'resumes/2_123.pdf',
             createdAt: new Date(),
-            user: { id: '2', name: 'Applicant One', email: 'applicant@test.com' },
+            user: {
+              id: '2',
+              name: 'Applicant One',
+              email: 'applicant@test.com',
+            },
           },
         ],
         meta: { page: 1, limit: 20, total: 1 },
@@ -141,7 +149,9 @@ describe('ApplicationsController', () => {
         createdAt: new Date(),
       };
 
-      mockApplicationsService.updateStatus.mockResolvedValue(expectedApplication);
+      mockApplicationsService.updateStatus.mockResolvedValue(
+        expectedApplication,
+      );
 
       const result = await controller.updateStatus('1', '1', dto);
 

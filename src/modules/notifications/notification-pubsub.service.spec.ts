@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { mock } from 'jest-mock-extended';
-import { NotificationPubSubService, SseNotificationPayload } from './notification-pubsub.service';
+import {
+  NotificationPubSubService,
+  SseNotificationPayload,
+} from './notification-pubsub.service';
 import Redis from 'ioredis';
 
 jest.mock('ioredis', () => {
@@ -27,7 +30,12 @@ interface InternalPubSubService {
 }
 
 function castToInternal(service: unknown): InternalPubSubService {
-  if (service && typeof service === 'object' && 'publisher' in service && 'subscriber' in service) {
+  if (
+    service &&
+    typeof service === 'object' &&
+    'publisher' in service &&
+    'subscriber' in service
+  ) {
     return service as InternalPubSubService;
   }
   throw new Error('Invalid internal state mapping');
@@ -96,84 +104,109 @@ describe('NotificationPubSubService', () => {
       const subscriberInstance = internalFields.subscriber;
       let registeredCallback: RedisMessageCallback = () => {};
 
-      jest.spyOn(subscriberInstance, 'on').mockImplementation((
-        ...args: Parameters<typeof subscriberInstance['on']>
-      ) => {
-        const [event, cb] = args;
+      jest
+        .spyOn(subscriberInstance, 'on')
+        .mockImplementation(
+          (...args: Parameters<(typeof subscriberInstance)['on']>) => {
+            const [event, cb] = args;
 
-        if (event === 'message' && isRedisMessageCallback(cb)) {
-          registeredCallback = cb;
-        }
-        return subscriberInstance;
-      });
-
-      service.onModuleInit().then(() => {
-        service.getNotificationStream().subscribe({
-          next: (streamedObject) => {
-            expect(streamedObject.userId).toBe('1234567890');
-            expect(streamedObject.payload.title).toBe('Chat');
-            done();
+            if (event === 'message' && isRedisMessageCallback(cb)) {
+              registeredCallback = cb;
+            }
+            return subscriberInstance;
           },
-        });
+        );
 
-        registeredCallback('job-board:notifications', rawRedisMessage);
-      }).catch((err: unknown) => done(err));
+      service
+        .onModuleInit()
+        .then(() => {
+          service.getNotificationStream().subscribe({
+            next: (streamedObject) => {
+              expect(streamedObject.userId).toBe('1234567890');
+              expect(streamedObject.payload.title).toBe('Chat');
+              done();
+            },
+          });
+
+          registeredCallback('job-board:notifications', rawRedisMessage);
+        })
+        .catch((err: unknown) => done(err));
     });
 
     it('should completely ignore messages that arrive on a different Redis channel', (done) => {
       const internalFields = castToInternal(service);
       let registeredCallback: RedisMessageCallback = () => {};
 
-      jest.spyOn(internalFields.subscriber, 'on').mockImplementation((...args) => {
-        const [event, cb] = args;
-        if (event === 'message' && isRedisMessageCallback(cb)) {
-          registeredCallback = cb;
-        }
-        return internalFields.subscriber;
-      });
-
-      service.onModuleInit().then(() => {
-        let updateTriggered = false;
-        service.getNotificationStream().subscribe({
-          next: () => { updateTriggered = true; }
+      jest
+        .spyOn(internalFields.subscriber, 'on')
+        .mockImplementation((...args) => {
+          const [event, cb] = args;
+          if (event === 'message' && isRedisMessageCallback(cb)) {
+            registeredCallback = cb;
+          }
+          return internalFields.subscriber;
         });
 
-        registeredCallback('job-board:chat', JSON.stringify({ userId: '123', payload: {} }));
+      service
+        .onModuleInit()
+        .then(() => {
+          let updateTriggered = false;
+          service.getNotificationStream().subscribe({
+            next: () => {
+              updateTriggered = true;
+            },
+          });
 
-        setTimeout(() => {
-          expect(updateTriggered).toBe(false);
-          done();
-        }, 50);
-      }).catch((err: unknown) => done(err));
+          registeredCallback(
+            'job-board:chat',
+            JSON.stringify({ userId: '123', payload: {} }),
+          );
+
+          setTimeout(() => {
+            expect(updateTriggered).toBe(false);
+            done();
+          }, 50);
+        })
+        .catch((err: unknown) => done(err));
     });
 
     it('should gracefully handle malformed JSON from Redis without breaking the application', (done) => {
       const internalFields = castToInternal(service);
       let registeredCallback: RedisMessageCallback = () => {};
 
-      jest.spyOn(internalFields.subscriber, 'on').mockImplementation((...args) => {
-        const [event, cb] = args;
-        if (event === 'message' && isRedisMessageCallback(cb)) {
-          registeredCallback = cb;
-        }
-        return internalFields.subscriber;
-      });
-
-      service.onModuleInit().then(() => {
-        let isCrashed = false;
-        service.getNotificationStream().subscribe({
-          error: () => { isCrashed = true; }
+      jest
+        .spyOn(internalFields.subscriber, 'on')
+        .mockImplementation((...args) => {
+          const [event, cb] = args;
+          if (event === 'message' && isRedisMessageCallback(cb)) {
+            registeredCallback = cb;
+          }
+          return internalFields.subscriber;
         });
 
-        expect(() => {
-          registeredCallback('job-board:notifications', 'BROKEN_STRING_NOT_JSON');
-        }).not.toThrow();
+      service
+        .onModuleInit()
+        .then(() => {
+          let isCrashed = false;
+          service.getNotificationStream().subscribe({
+            error: () => {
+              isCrashed = true;
+            },
+          });
 
-        setTimeout(() => {
-          expect(isCrashed).toBe(false);
-          done();
-        }, 50);
-      }).catch((err: unknown) => done(err));
+          expect(() => {
+            registeredCallback(
+              'job-board:notifications',
+              'BROKEN_STRING_NOT_JSON',
+            );
+          }).not.toThrow();
+
+          setTimeout(() => {
+            expect(isCrashed).toBe(false);
+            done();
+          }, 50);
+        })
+        .catch((err: unknown) => done(err));
     });
   });
 });

@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
 import {
@@ -22,6 +23,8 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Injectable()
 export class JobsService implements IJobsService {
+  private readonly logger = new Logger('JobsService');
+
   constructor(
     @Inject(IJobsRepository)
     private readonly jobsRepository: IJobsRepository,
@@ -56,6 +59,13 @@ export class JobsService implements IJobsService {
     });
 
     await this.cacheService.scanAndDelete('jobs:*');
+
+    this.logger.log({
+      message: 'Job created',
+      jobId: result.id,
+      companyId: company.id,
+    });
+
     const applicantIds = await this.usersService.listIdsByRole('applicant');
     await Promise.all(
       applicantIds.map((applicantId) =>
@@ -130,6 +140,10 @@ export class JobsService implements IJobsService {
     return result;
   }
 
+  async getAttachmentById(id: string) {
+    return this.jobsRepository.getAttachmentById(id);
+  }
+
   async updateById(id: string, userId: string, dto: UpdateJobDto) {
     await this.assertOwnership(id, userId);
 
@@ -158,6 +172,8 @@ export class JobsService implements IJobsService {
     }
 
     await this.cacheService.scanAndDelete('jobs:*');
+
+    this.logger.log({ message: 'Job deleted', jobId: id });
   }
 
   async uploadAttachment(

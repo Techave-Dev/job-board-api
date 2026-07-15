@@ -4,6 +4,7 @@ import { CompaniesService } from './companies.service';
 import { ICompaniesRepository } from './interfaces/companies.repository.interface';
 import { IStorageService } from '../storage/interfaces/storage.service.interface';
 import { ICacheService } from '../cache/interfaces/cache.service.interface';
+import { IUsersRepository } from '../users/interfaces/users.repository.interface';
 import {
   ConflictException,
   NotFoundException,
@@ -24,6 +25,12 @@ describe('CompaniesService', () => {
     scanAndDelete: jest.fn().mockResolvedValue(undefined),
     isConnected: jest.fn().mockReturnValue(true),
   };
+  const mockUsersRepository = {
+    findById: jest.fn(),
+    findByEmail: jest.fn(),
+    updateById: jest.fn(),
+    listIdsByRole: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,6 +39,7 @@ describe('CompaniesService', () => {
         { provide: ICompaniesRepository, useValue: mockRepository },
         { provide: IStorageService, useValue: mockStorageService },
         { provide: ICacheService, useValue: mockCacheService },
+        { provide: IUsersRepository, useValue: mockUsersRepository },
       ],
     }).compile();
 
@@ -51,6 +59,14 @@ describe('CompaniesService', () => {
         website: 'https://techcorp.com',
         createdAt: new Date(),
       });
+      mockUsersRepository.updateById.mockResolvedValue({
+        id: '10',
+        email: 'test@test.com',
+        name: 'Test User',
+        role: 'company',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const result = await service.create('10', {
         name: 'Tech Corp',
@@ -65,6 +81,9 @@ describe('CompaniesService', () => {
         name: 'Tech Corp',
         description: 'A tech company',
         website: 'https://techcorp.com',
+      });
+      expect(mockUsersRepository.updateById).toHaveBeenCalledWith('10', {
+        role: 'company',
       });
     });
 
@@ -103,16 +122,14 @@ describe('CompaniesService', () => {
       const result = await service.findById('1');
 
       expect(result).not.toBeNull();
-      expect(result!.name).toBe('Tech Corp');
-      expect(result!.jobCount).toBe(5);
+      expect(result.name).toBe('Tech Corp');
+      expect(result.jobCount).toBe(5);
     });
 
     it('should throw NotFoundException if company not found', async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findById('999')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findById('999')).rejects.toThrow(NotFoundException);
     });
 
     it('should return cached company without querying DB', async () => {

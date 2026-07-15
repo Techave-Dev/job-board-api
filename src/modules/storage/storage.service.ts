@@ -1,12 +1,12 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-  HeadBucketCommand,
   CreateBucketCommand,
+  HeadBucketCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -14,6 +14,7 @@ const PRESIGNED_URL_EXPIRY_SECONDS = 60 * 60;
 
 @Injectable()
 export class StorageService implements OnModuleInit {
+  private readonly logger = new Logger(StorageService.name);
   private readonly client: S3Client;
   private readonly bucket: string;
 
@@ -41,8 +42,50 @@ export class StorageService implements OnModuleInit {
   private async ensureBucketExists(): Promise<void> {
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }));
-    } catch {
-      await this.client.send(new CreateBucketCommand({ Bucket: this.bucket }));
+      this.logger.log(
+        `Bucket "${this.bucket}" already exists, skipping creation`,
+      );
+    } catch (err) {
+      if (err instanceof Error) {
+        const errorName = 'name' in err ? err.name : '';
+        const httpStatus =
+          err && typeof err === 'object' && '$metadata' in err
+            ? (err as { $metadata: { httpStatusCode?: number } }).$metadata
+                .httpStatusCode
+            : undefined;
+
+        if (
+          errorName === 'NoSuchBucket' ||
+          err.message === 'NoSuchBucket' ||
+          errorName === 'NotFound' ||
+          httpStatus === 404
+        ) {
+          try {
+            await this.client.send(
+              new CreateBucketCommand({ Bucket: this.bucket }),
+            );
+            this.logger.log(`Bucket "${this.bucket}" created successfully`);
+          } catch (createErr) {
+            if (createErr instanceof Error) {
+              const createErrName = 'name' in createErr ? createErr.name : '';
+
+              if (
+                createErrName === 'BucketAlreadyOwnedByYou' ||
+                createErrName === 'BucketAlreadyExists'
+              ) {
+                this.logger.log(
+                  `Bucket "${this.bucket}" was created concurrently by another process, skipping`,
+                );
+                return;
+              }
+            }
+            throw createErr;
+          }
+          return;
+        }
+      }
+
+      throw err;
     }
   }
 

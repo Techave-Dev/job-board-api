@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreateCompanySchema = z.object({
@@ -9,4 +10,4 @@ export const CreateCompanySchema = z.object({
   website: z.string().url('Invalid URL format').max(255).optional(),
 });
 
-export type CreateCompanyDto = z.infer<typeof CreateCompanySchema>;
+export class CreateCompanyDto extends createZodDto(CreateCompanySchema) {}

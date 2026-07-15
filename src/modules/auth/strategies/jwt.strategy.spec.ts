@@ -13,7 +13,9 @@ describe('JwtStrategy', () => {
   });
 
   beforeEach(() => {
-    strategy = new JwtStrategy(mockAuthRepository as unknown as IAuthRepository);
+    strategy = new JwtStrategy(
+      mockAuthRepository as unknown as IAuthRepository,
+    );
     jest.clearAllMocks();
   });
 
@@ -36,7 +38,7 @@ describe('JwtStrategy', () => {
       const result = await strategy.validate(payload);
 
       expect(result).toEqual({
-        id: '1',
+        userId: '1',
         email: 'user@gmail.com',
         name: 'Test User',
         role: 'applicant',

@@ -17,6 +17,6 @@ import { IUsersService } from './interfaces/users.service.interface';
       useClass: UsersService,
     },
   ],
-  exports: [IUsersService],
+  exports: [IUsersService, IUsersRepository],
 })
 export class UsersModule {}

@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const RegisterSchema = z.object({
@@ -10,4 +11,4 @@ export const RegisterSchema = z.object({
   role: z.enum(['applicant', 'company']),
 });
 
-export type RegisterDto = z.infer<typeof RegisterSchema>;
+export class RegisterDto extends createZodDto(RegisterSchema) {}

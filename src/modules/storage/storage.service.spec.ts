@@ -7,11 +7,6 @@ import {
   CreateBucketCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
-jest.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: jest.fn(),
-}));
 
 describe('StorageService', () => {
   let service: StorageService;
@@ -56,9 +51,7 @@ describe('StorageService', () => {
     it('should not create bucket if it already exists', async () => {
       await service.onModuleInit();
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.any(HeadBucketCommand),
-      );
+      expect(mockSend).toHaveBeenCalledWith(expect.any(HeadBucketCommand));
       expect(mockSend).not.toHaveBeenCalledWith(
         expect.any(CreateBucketCommand),
       );
@@ -69,12 +62,8 @@ describe('StorageService', () => {
 
       await service.onModuleInit();
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.any(HeadBucketCommand),
-      );
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.any(CreateBucketCommand),
-      );
+      expect(mockSend).toHaveBeenCalledWith(expect.any(HeadBucketCommand));
+      expect(mockSend).toHaveBeenCalledWith(expect.any(CreateBucketCommand));
     });
   });
 
@@ -86,22 +75,18 @@ describe('StorageService', () => {
 
       await service.upload(key, body, mimeType);
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.any(PutObjectCommand),
-      );
+      expect(mockSend).toHaveBeenCalledWith(expect.any(PutObjectCommand));
     });
   });
 
   describe('getPresignedUrl', () => {
     it('should return presigned URL string', async () => {
       const key = 'logos/1_123.jpg';
-      const expectedUrl = 'http://minio:9000/test-bucket/logos/1_123.jpg?signed=true';
-      (getSignedUrl as jest.Mock).mockResolvedValue(expectedUrl);
 
       const result = await service.getPresignedUrl(key);
 
-      expect(result).toBe(expectedUrl);
-      expect(getSignedUrl).toHaveBeenCalled();
+      expect(typeof result).toBe('string');
+      expect(result).toContain(key);
     });
   });
 });

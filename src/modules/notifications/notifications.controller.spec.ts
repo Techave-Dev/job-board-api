@@ -4,7 +4,10 @@ import { UnauthorizedException } from '@nestjs/common';
 import { of } from 'rxjs';
 import { NotificationsController } from './notifications.controller';
 import { INotificationsService } from './interfaces/notifications.service.interface';
-import { NotificationPubSubService, SseNotificationPayload } from './notification-pubsub.service';
+import {
+  NotificationPubSubService,
+  SseNotificationPayload,
+} from './notification-pubsub.service';
 import { ApiResponse } from '../../common/types/api-response';
 import { Notification } from './interfaces/notifications.repository.interface';
 
@@ -34,10 +37,10 @@ describe('NotificationsController', () => {
       };
       mockService.findAll.mockResolvedValue(mockResult);
 
-      const response = await controller.findAll('1234567890', { 
-        page: 1, 
+      const response = await controller.findAll('1234567890', {
+        page: 1,
         limit: 10,
-        unread: undefined 
+        unread: undefined,
       });
 
       expect(response).toBeInstanceOf(ApiResponse);

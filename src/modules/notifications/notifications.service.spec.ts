@@ -43,14 +43,23 @@ describe('NotificationsService', () => {
       mockRepository.countByUserId.mockResolvedValue(1);
       mockRepository.countUnreadByUserId.mockResolvedValue(1);
 
-      const result = await service.findAll('1234567890', { page: 1, limit: 10, unread: undefined });
+      const result = await service.findAll('1234567890', {
+        page: 1,
+        limit: 10,
+        unread: undefined,
+      });
 
       expect(result.data).toEqual(mockNotifications);
       expect(result.meta.page).toBe(1);
       expect(result.meta.limit).toBe(10);
       expect(result.meta.total).toBe(1);
       expect(result.meta.unreadCount).toBe(1);
-      expect(mockRepository.listByUserId).toHaveBeenCalledWith('1234567890', null, 10, 0);
+      expect(mockRepository.listByUserId).toHaveBeenCalledWith(
+        '1234567890',
+        null,
+        10,
+        0,
+      );
     });
 
     it('should forward true/false boolean parameters cleanly to the repository layer', async () => {
@@ -59,10 +68,24 @@ describe('NotificationsService', () => {
       mockRepository.countUnreadByUserId.mockResolvedValue(0);
 
       await service.findAll('1234567890', { page: 1, limit: 10, unread: true });
-      expect(mockRepository.listByUserId).toHaveBeenCalledWith('1234567890', true, 10, 0);
+      expect(mockRepository.listByUserId).toHaveBeenCalledWith(
+        '1234567890',
+        true,
+        10,
+        0,
+      );
 
-      await service.findAll('1234567890', { page: 1, limit: 10, unread: false });
-      expect(mockRepository.listByUserId).toHaveBeenCalledWith('1234567890', false, 10, 0);
+      await service.findAll('1234567890', {
+        page: 1,
+        limit: 10,
+        unread: false,
+      });
+      expect(mockRepository.listByUserId).toHaveBeenCalledWith(
+        '1234567890',
+        false,
+        10,
+        0,
+      );
     });
   });
 
@@ -90,13 +113,21 @@ describe('NotificationsService', () => {
     it('should throw NotFoundException if notification does not exist', async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(service.markAsRead('1', '1234567890')).rejects.toThrow(NotFoundException);
+      await expect(service.markAsRead('1', '1234567890')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException if user is not the owner', async () => {
-      mockRepository.findById.mockResolvedValue({ id: '1', userId: '8888888888', read: false });
+      mockRepository.findById.mockResolvedValue({
+        id: '1',
+        userId: '8888888888',
+        read: false,
+      });
 
-      await expect(service.markAsRead('1', '1234567890')).rejects.toThrow(ForbiddenException);
+      await expect(service.markAsRead('1', '1234567890')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -134,14 +165,11 @@ describe('NotificationsService', () => {
     });
 
     it('should abort publishing and throw error if database transaction fails', async () => {
-      mockRepository.create.mockRejectedValue(new Error('Database connection timeout'));
+      mockRepository.create.mockRejectedValue(
+        new Error('Database connection timeout'),
+      );
       await expect(
-        service.createAndEmit(
-          '1234567890', 
-          'new_job', 
-          'Msg', 
-          { jobId: '99' }
-        )
+        service.createAndEmit('1234567890', 'new_job', 'Msg', { jobId: '99' }),
       ).rejects.toThrow('Database connection timeout');
 
       expect(mockPubSubService.publish).not.toHaveBeenCalled();

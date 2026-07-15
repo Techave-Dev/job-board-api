@@ -14,10 +14,7 @@ describe('CacheService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CacheService,
-        { provide: Redis, useValue: mockRedis },
-      ],
+      providers: [CacheService, { provide: Redis, useValue: mockRedis }],
     }).compile();
 
     service = module.get(CacheService);

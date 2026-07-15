@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ZodError } from 'zod';
@@ -21,6 +22,8 @@ function isExceptionBody(value: unknown): value is ExceptionBody {
 
 @Catch()
 export class ZodExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger('ExceptionFilter');
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -70,11 +73,12 @@ export class ZodExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    console.error({
+    this.logger.error({
       requestId,
       path: request.url,
       method: request.method,
       stack: exception instanceof Error ? exception.stack : undefined,
+      message: exception instanceof Error ? exception.message : 'Unknown error',
     });
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

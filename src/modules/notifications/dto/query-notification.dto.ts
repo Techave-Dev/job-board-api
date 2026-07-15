@@ -1,8 +1,15 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const QueryNotificationSchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().default(20),
+  page: z.preprocess(
+    (val) => (val === '' || val === undefined || val === null ? 1 : val),
+    z.coerce.number().int().positive().default(1),
+  ),
+  limit: z.preprocess(
+    (val) => (val === '' || val === undefined || val === null ? 20 : val),
+    z.coerce.number().int().positive().default(20),
+  ),
   unread: z
     .string()
     .optional()
@@ -13,4 +20,6 @@ export const QueryNotificationSchema = z.object({
     }),
 });
 
-export type QueryNotificationDto = z.infer<typeof QueryNotificationSchema>;
+export class QueryNotificationDto extends createZodDto(
+  QueryNotificationSchema,
+) {}

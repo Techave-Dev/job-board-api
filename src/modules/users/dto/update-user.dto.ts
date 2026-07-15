@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const UpdateUserSchema = z.object({
@@ -9,4 +10,4 @@ export const UpdateUserSchema = z.object({
   email: z.string().email('Invalid email format').optional(),
 });
 
-export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
+export class UpdateUserDto extends createZodDto(UpdateUserSchema) {}

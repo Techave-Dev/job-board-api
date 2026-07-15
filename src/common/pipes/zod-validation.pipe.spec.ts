@@ -71,7 +71,7 @@ describe('ZodValidationPipe', () => {
     let thrownError: BadRequestException | undefined;
 
     try {
-      nestedPipe.transform({ address: {} });
+      nestedPipe.transform({ address: { city: '' } });
     } catch (error) {
       thrownError = error as BadRequestException;
     }
